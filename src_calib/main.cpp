@@ -36,8 +36,8 @@
 #include "HX711.h"
 
 //GPIOs (note these don't match up with the silkscreen digital callouts on the XIAO board, see schematic)
-const int IN1MotorPin = 7; //change to 44 if motor runs in reverse
-const int IN2MotorPin = 44; //change to 7 if motor runs in reverse
+const int IN1MotorPin = 44; //change to 44 if motor runs in reverse
+const int IN2MotorPin = 7; //change to 7 if motor runs in reverse
 const int buttonUPpin = 5; //labeled as D4 on the silkscreen for xiao
 const int buttonDOWNpin = 6; //labeled as D5 on the slikscreen for xiao
 const int HX_DOUT = 9; //hx711, labeled as D10 on the silkscreen for xiao
@@ -45,7 +45,11 @@ const int HX_CLK = 8; //hx711, labeled as D9 on the silkscreen for xiao
 
 HX711 scale;
 
-float calibration_factor = -2650; //- njscale1, zero factor ~-340528
+// float calibration_factor = -2000; //-19.9g, zero factor ~-340528
+// float calibration_factor = -5000; //-8g, zero factor ~-340528
+// float calibration_factor = -10000; //-4g, zero factor ~-340528
+// float calibration_factor = -100000; //-0.4g, zero factor ~-340528
+float calibration_factor = 1000; 
 
 void setup() {
   Serial.begin(9600);
