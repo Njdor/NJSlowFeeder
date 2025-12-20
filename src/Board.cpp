@@ -136,6 +136,12 @@ void Board::playDeepSleepChime(Speaker* speaker) {
     speaker->makeSound(600, 300);
 }
 
+void Board::playTareChime(Speaker* speaker) {
+    speaker->makeSound(1200, 220);
+    delay(60);
+    speaker->makeSound(1200, 120);
+}
+
 bool Board::shouldSleep() {
     unsigned long now = millis();
     bool timeout = (now - lastMotorActiveTime > sleepTimeoutTime) && (now - lastButtonActiveTime > sleepTimeoutTime);
@@ -285,6 +291,7 @@ void Board::handleButtonAction() {
             lastButtonActiveTime = millis();
             if (motor.getVoltage() > 0) {
                 motor.setVoltage(motor.getVoltage() + motor.getVoltageStep());
+                handleUpClick();
             }
             break;
 
@@ -318,6 +325,7 @@ void Board::handleButtonAction() {
                 float newVoltage = motor.getVoltage() - motor.getVoltageStep();
                 // ensure motor doesn't stop when holding down button
                 motor.setVoltage(max(newVoltage, motor.getMinVoltage()));
+                handleUpClick();
             }
             break;
 
@@ -365,7 +373,8 @@ void Board::processFeedingCycle() {
 		if(millis() - delayStartTime >= delayAfterClick) {
 			// reset to wait afte click
 			waitingAfterClick = false;
-			delayStartTime = millis();
+            playTareChime(speakerPtr);
+			// delayStartTime = millis();
 		}
 	}
 	else {

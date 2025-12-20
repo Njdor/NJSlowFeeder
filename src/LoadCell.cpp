@@ -35,9 +35,9 @@ bool LoadCell::nonBlockingReadWeight() {
 
 void LoadCell::start(unsigned long now) {
 	if (!nonBlockingReadWeight()) { return; }
-	// non blocking tare
+	// non-blocking tare
 	scale.set_offset(avgWeight);
-	// non blocking average weight
+	// non-blocking average weight
 	previousWeight = avgWeight - scale.get_offset();
 	started = true;
 	lastRateUpdateTime = millis();

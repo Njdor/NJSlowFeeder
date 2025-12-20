@@ -99,6 +99,7 @@ private:
     void playBatteryCriticalChime(Speaker* speaker);
     void playStartupChime(Speaker* speaker);
     void playDeepSleepChime(Speaker* speaker);
+    void playTareChime(Speaker* speaker);
     void printWakeupReason() const;
 
     bool shouldStopMotor();
