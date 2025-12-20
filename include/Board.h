@@ -9,9 +9,9 @@
 #include "Battery.h"
 #include "driver/rtc_io.h"
 
-#define HAS_LOADCELL       true
-#define HAS_BATTERYMONITOR true
-#define HAS_BUZZER         true
+#define HAS_LOADCELL       false
+#define HAS_BATTERYMONITOR false
+#define HAS_BUZZER         false
 #define CALIBRATION_FACTOR 2300.0f
 
 enum ButtonStatus {
