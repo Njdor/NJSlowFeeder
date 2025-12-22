@@ -37,19 +37,20 @@ bool Motor::shouldStop() const {
 	return false;
 }
 
-void Motor::setVoltage(float newVoltage, bool forceSet) {
+bool Motor::setVoltage(float newVoltage, bool forceSet) {
 	if (!forceSet && lastMotorUpdate == 0) {
 		lastMotorUpdate = millis();
-		return;
+		return false;
 	}
 	else if (!forceSet && (millis() - lastMotorUpdate < motorUpdateInterval)) {
-		return;
+		return false;
 	}
 	newVoltage = constrain(newVoltage, 0, motorMaxVoltage);
 	int setpoint = (int)((newVoltage / motorMaxVoltage) * 255);
 	analogWrite(pwmPin, setpoint);
 	motorVoltage = newVoltage;
 	lastMotorUpdate = millis();
+	return true;
 }
 
 float Motor::getVoltage() const {

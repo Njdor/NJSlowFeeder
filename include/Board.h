@@ -11,7 +11,7 @@
 
 #define HAS_LOADCELL       false
 #define HAS_BATTERYMONITOR false
-#define HAS_BUZZER         false
+#define HAS_BUZZER         true
 #define CALIBRATION_FACTOR 2300.0f
 
 enum ButtonStatus {
@@ -83,7 +83,8 @@ private:
     unsigned long clickDownStartTime = 0; 
     const unsigned long doubleClickInterval = 400;
 
-    const int buzzerFreqMin = 800;
+    // Wheel speed adjustment sound
+    const int buzzerFreqMin = 1000;
     const int buzzerFreqMax = 2000;
 
     // Config
@@ -103,6 +104,7 @@ private:
     void playStartupChime(Speaker* speaker);
     void playDeepSleepChime(Speaker* speaker);
     void playTareChime(Speaker* speaker);
+    void playMotorAdjustChime(Speaker* speaker, int freq);
     int mapMotorVoltageToFreq(float voltage);
     void printWakeupReason() const;
     bool shouldStopMotor();

@@ -18,7 +18,7 @@ public:
     float getMinVoltage() const;
     float getMaxVoltage() const;
     float getVoltageStep() const;
-    void setVoltage(float newVoltage, bool forceSet=false);
+    bool setVoltage(float newVoltage, bool forceSet=false);
     void setMotorStartTime();
     bool shouldStop() const;
 
