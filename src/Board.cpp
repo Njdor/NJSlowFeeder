@@ -347,6 +347,13 @@ void Board::handleButtonAction() {
     }
 }
 
+int Board::mapMotorVoltageToFreq(float volatge) {
+    float minVoltage = motor.getMinVoltage();
+    float maxVoltage = motor.getMaxVoltage();
+    float ratio = (volatge - minVoltage) / (maxVoltage - minVoltage);
+    return buzzerFreqMin + ratio * (buzzerFreqMax - buzzerFreqMin);
+}
+
 bool Board::shouldStopMotor() {
     if (buttonUp.buttonstatus != BUTTON_IDLE || buttonDown.buttonstatus != BUTTON_IDLE){
         return false;

@@ -83,6 +83,9 @@ private:
     unsigned long clickDownStartTime = 0; 
     const unsigned long doubleClickInterval = 400;
 
+    const int buzzerFreqMin = 800;
+    const int buzzerFreqMax = 2000;
+
     // Config
     const int sleepTimeoutTime = 30000; // inactive time before system goes to sleep
 
@@ -100,8 +103,8 @@ private:
     void playStartupChime(Speaker* speaker);
     void playDeepSleepChime(Speaker* speaker);
     void playTareChime(Speaker* speaker);
+    int mapMotorVoltageToFreq(float voltage);
     void printWakeupReason() const;
-
     bool shouldStopMotor();
     void resetSystem();
     
