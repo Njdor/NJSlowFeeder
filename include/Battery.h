@@ -26,10 +26,10 @@ private:
     adc1_channel_t adcChannel;
     esp_adc_cal_characteristics_t adcChars;
 
-    const float fullVoltage = 4.2;
-    const float emptyVoltage = 3.0;
-    const float R1 = 22.0;                      // kohm
-    const float R2 = 10.0;                      // kohm
+    const float fullVoltage = 4.2f;
+    const float emptyVoltage = 3.0f;
+    const float R1 = 22.0f;                      // kohm
+    const float R2 = 10.0f;                      // kohm
     const float voltageDividerRatio = (R1 + R2) / R2; 
 
     const int numReading = 10;                  // num readings to average for a accurate measurement

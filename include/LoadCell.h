@@ -4,12 +4,13 @@
 #include <Arduino.h>
 #include "HX711.h"
 #include <array>
+#include <cmath>
 
 using namespace std;
 
 class LoadCell {
 public:
-	LoadCell(int doutPin, int clkPin, float calibrationFactor, float alpha = 0.3);
+	LoadCell(int doutPin, int clkPin, float calibrationFactor, float alpha = 0.8);
 
 	void setup();
 	void update();               
@@ -31,38 +32,32 @@ private:
 
 	// Feed rate
 	float currRate = 0;
-	float smoothedRate = 0;
-	float alpha;
 
 	// Timing
 	unsigned long lastRateUpdateTime = 0;
 	const unsigned long sampleInterval = 500; // controls how frequent (ms) loadCell update readings
 
-	// Feed stop detection
-	unsigned long stoppedSince = 0;
-	const unsigned long stopHoldTime = 2000;
-	unsigned long rateStoppedSince;
-	unsigned long weightStoppedSince;
-
-	// Stopping thresholds
-	const float weightChangeThreshold = 1.5;
-	const float feedRateThreshold = 0.5;
-
 	// Params used to stop
-	float minWeight;
-	float maxWeight;
-	bool weightFlag = false;
-	bool rateFlag = false;
-	static const int windowSize = 5;
-	int weightInd = 0;
-	array<float, windowSize> weightWindow;
-	int weightObsCnt = 0;
+	const float alphaFast = 0.4f;
+	const float alphaSlow = 0.05f;
+	const float betaVar = 0.3;
+	const float stdMove = 1.3f;
+	const int conscBreach = 2;
+	int breachCnt = 0;
+	float emaFast = -1.0f;
+	float emaSlow = -1.0f;
+	float emaGap;
+	float gapVar = 0.5f;
+	float s = 0.0f;
 
-	int numReadings = 10;
+	// Params to read weights
+	const int numReadings = 10;
 	int cnt = 0;
 	float tallySum = 0.0f;
 	float avgWeight = 0.0f;
+
 	void start(unsigned long now);
+	double normal_cdf(double x);
 	// bool started() const;
 };
 

@@ -1,21 +1,18 @@
 #include "LoadCell.h"
 
 LoadCell::LoadCell(int doutPin, int clkPin, float cf, float a)
-	: DOUT(doutPin), CLK(clkPin), calibrationFactor(cf), alpha(a) {}
+	: DOUT(doutPin), CLK(clkPin), calibrationFactor(cf) {}
 
 void LoadCell::reset() {
-	weightInd = 0;
-	fill(weightWindow.begin(), weightWindow.end(), 0.0f);
-	weightObsCnt = 0;
-	// startTime = 0;
 	started = false;
 	lastRateUpdateTime = 0;
-	rateStoppedSince = 0;
-	weightStoppedSince = 0;
+	cnt = 0;
+	tallySum = 0.0f;
 	previousWeight = 0;
-	smoothedRate = 0;
-	minWeight = 0; maxWeight = 0;
-	weightFlag = false, rateFlag = false;
+	breachCnt = 0;
+	emaFast = -1.0f;
+	emaSlow = -1.0f;
+	gapVar = 0.5f;
 }
 
 void LoadCell::setup() {
@@ -38,9 +35,9 @@ bool LoadCell::nonBlockingReadWeight() {
 
 void LoadCell::start(unsigned long now) {
 	if (!nonBlockingReadWeight()) { return; }
-	// non blocking tare
+	// non-blocking tare
 	scale.set_offset(avgWeight);
-	// non blocking average weight
+	// non-blocking average weight
 	previousWeight = avgWeight - scale.get_offset();
 	started = true;
 	lastRateUpdateTime = millis();
@@ -66,74 +63,45 @@ void LoadCell::update() {
 	float netWeight = avgWeight - scale.get_offset();
 	float dw = abs(netWeight - previousWeight);
 	float dt = (now - lastRateUpdateTime) / 1000.0;
-
-	float currRate = dw / dt;
+	float rawRate = dw / dt;
 
 	// EMA smoothing
-	smoothedRate = alpha * currRate + (1 - alpha) * smoothedRate;
+	if (emaFast < 0.0f) {
+		emaFast = rawRate;
+	} else {
+		emaFast = (1 - alphaFast) * emaFast + alphaFast * rawRate;
+	}
+	if (emaSlow < 0.0f) {
+		emaSlow = rawRate;
+	} else {
+		emaSlow = (1 - alphaSlow) * emaSlow + alphaSlow * rawRate;
+	}
+	emaFast = fmin(emaFast, emaSlow);
+	emaGap = emaSlow - emaFast;
 
-	// Rolling window to track weights
-	// weightWindow[weightInd++] = scaleReading;
-	weightWindow[weightInd++] = netWeight;
-	weightInd = weightInd % windowSize;
+	gapVar = (1 - betaVar) * gapVar + betaVar * (emaGap * emaGap);
 
-	if (weightObsCnt < windowSize) weightObsCnt++;
+	if (emaGap > stdMove * sqrt(gapVar)) {
+		breachCnt++;
+	} else {
+		breachCnt = 0;
+	}
+	Serial.print("rate,");
+	Serial.print(rawRate, 6); Serial.print(',');
+	Serial.print(emaFast, 6); Serial.print(',');
+	Serial.println(emaSlow, 6); 
 
-	auto minmax = minmax_element(weightWindow.begin(), weightWindow.end());
-	minWeight = *minmax.first;
-	maxWeight = *minmax.second;
+	Serial.print("gap,");
+	Serial.print(emaGap, 6); Serial.print(',');
+	Serial.println(gapVar, 6); 
 
-	// for (size_t i = 0; i < weightWindow.size(); ++i) {
-	// 	Serial.print(weightWindow[i], 3); 
-	// 	if (i < weightWindow.size() - 1) Serial.print(" | ");
-	// }
-	// Serial.println();
-	// Serial.print("Weight diff: ");
-	// Serial.println(maxWeight - minWeight, 3);
-	// Serial.print("Smoothed Rate: "); 
-	// Serial.println(smoothedRate, 3); 
-	// Serial.println();
-
-	// previousWeight = scaleReading;
 	previousWeight = netWeight;
 	lastRateUpdateTime = now;
 }
 
-
 bool LoadCell::shouldStop() {
-    if (weightObsCnt < windowSize) {
-        return false;
-    }
-
-    unsigned long now = millis();
-
-    // --- Weight check ---
-    bool weightCond = (maxWeight - minWeight < weightChangeThreshold);
-    if (weightCond) {
-        if (weightStoppedSince == 0) weightStoppedSince = now;
-    } 
-	else {
-        weightStoppedSince = 0;
-    }
-
-    // --- Rate check ---
-    bool rateCond = (smoothedRate < feedRateThreshold);
-    if (rateCond) {
-        if (rateStoppedSince == 0) rateStoppedSince = now;
-    } 
-	else {
-        rateStoppedSince = 0;
-    }
-
-    // Flags for persistent condition 
-    bool weightStuck = weightCond && (now - weightStoppedSince >= stopHoldTime);
-    bool rateStuck   = rateCond   && (now - rateStoppedSince >= stopHoldTime);
-
-    // Final stop condition
-	if (weightCond) { Serial.println("Weight condition met"); }
-	if (rateCond) { Serial.println("Rate condition met"); }
-	if (weightStuck) { Serial.println("Weight condition stuck"); }
-	if (rateStuck) { Serial.println("Rate condition stuck"); }
-
-	return (weightCond && rateCond) || weightStuck || rateStuck;
+	if (breachCnt == conscBreach) {
+		return true;
+	}
+	return false;
 }

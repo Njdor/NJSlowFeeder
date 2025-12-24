@@ -9,10 +9,10 @@
 #include "Battery.h"
 #include "driver/rtc_io.h"
 
-#define HAS_LOADCELL       true
+#define HAS_LOADCELL       false
 #define HAS_BATTERYMONITOR false
-#define HAS_BUZZER         false
-#define CALIBRATION_FACTOR -2520.0f
+#define HAS_BUZZER         true
+#define CALIBRATION_FACTOR 2300.0f
 
 enum ButtonStatus {
     BUTTON_IDLE         = 0,
@@ -33,8 +33,8 @@ public:
 
 private:
     // GPIO Pins
-    static const int IN1MotorPin               = 7; //change to 44 if motor runs in reverse
-    static const int IN2MotorPin               = 44; //change to 7 if motor runs in reverse
+    static const int IN1MotorPin               = 44; //change to 44 if motor runs in reverse
+    static const int IN2MotorPin               = 7; //change to 7 if motor runs in reverse
     static const int buttonUpPin               = 5; //labeled as D4 on the silkscreen for xiao
     static const int buttonDownPin             = 6; //labeled as D5 on the slikscreen for xiao
     static const int HX_DOUT                   = 9; //hx711, labeled as D10 on the silkscreen for xiao
@@ -42,8 +42,10 @@ private:
     static const int batteryPin                = A2; // ADC input from voltage divider
     static const int buzzerPin                 = 4;
     static const gpio_num_t HX711CLK_GPIO      = GPIO_NUM_8;
-    static const gpio_num_t IN1_GPIO           = GPIO_NUM_7;
-    static const gpio_num_t IN2_GPIO           = GPIO_NUM_44;  //non-rtc I/O, default is OUTPUT with Pullup Resistor enabled.
+    // static const gpio_num_t IN1_GPIO           = GPIO_NUM_7;
+    // static const gpio_num_t IN2_GPIO           = GPIO_NUM_44;  //non-rtc I/O, default is OUTPUT with Pullup Resistor enabled.
+    static const gpio_num_t IN1_GPIO           = GPIO_NUM_44; //non-rtc I/O, default is OUTPUT with Pullup Resistor enabled.
+    static const gpio_num_t IN2_GPIO           = GPIO_NUM_7;  
     static const gpio_num_t BUTTON_UP_GPIO     = GPIO_NUM_5;
     static const gpio_num_t BUTTON_DOWN_GPIO   = GPIO_NUM_6;
     static const gpio_num_t BATTERYPIN_GPIO    = GPIO_NUM_3;
@@ -81,6 +83,10 @@ private:
     unsigned long clickDownStartTime = 0; 
     const unsigned long doubleClickInterval = 400;
 
+    // Wheel speed adjustment sound
+    const int buzzerFreqMin = 1000;
+    const int buzzerFreqMax = 2000;
+
     // Config
     const int sleepTimeoutTime = 30000; // inactive time before system goes to sleep
 
@@ -97,8 +103,10 @@ private:
     void playBatteryCriticalChime(Speaker* speaker);
     void playStartupChime(Speaker* speaker);
     void playDeepSleepChime(Speaker* speaker);
+    void playTareChime(Speaker* speaker);
+    void playMotorAdjustChime(Speaker* speaker, int freq);
+    int mapMotorVoltageToFreq(float voltage);
     void printWakeupReason() const;
-
     bool shouldStopMotor();
     void resetSystem();
     

@@ -136,6 +136,16 @@ void Board::playDeepSleepChime(Speaker* speaker) {
     speaker->makeSound(600, 300);
 }
 
+void Board::playTareChime(Speaker* speaker) {
+    speaker->makeSound(1200, 220);
+    delay(60);
+    speaker->makeSound(1200, 120);
+}
+
+void Board::playMotorAdjustChime(Speaker* speaker, int freq) {
+    speaker->makeSound(freq, 250);
+}
+
 bool Board::shouldSleep() {
     unsigned long now = millis();
     bool timeout = (now - lastMotorActiveTime > sleepTimeoutTime) && (now - lastButtonActiveTime > sleepTimeoutTime);
@@ -208,7 +218,7 @@ void Board::enterDeepSleep() {
     digitalWrite(IN2MotorPin, LOW);
     delay(10);
     pinMode(IN2MotorPin, INPUT);
-    isolateRtcPin(IN1_GPIO);
+    // isolateRtcPin(IN1_GPIO);
     isolateRtcPin(IN2_GPIO);
 
     // Button Down
@@ -284,7 +294,12 @@ void Board::handleButtonAction() {
             // Serial.println(constrain(currVoltage + motor.getVoltageStep(), 0, motor.getBusVoltage()), 2);
             lastButtonActiveTime = millis();
             if (motor.getVoltage() > 0) {
-                motor.setVoltage(motor.getVoltage() + motor.getVoltageStep());
+                float newVoltage = motor.getVoltage() + motor.getVoltageStep();
+                bool set = motor.setVoltage(newVoltage);
+                if (set) {
+                    playMotorAdjustChime(speakerPtr, mapMotorVoltageToFreq(newVoltage));
+                    handleUpClick();
+                }
             }
             break;
 
@@ -317,7 +332,11 @@ void Board::handleButtonAction() {
             if (motor.getVoltage() > 0) {
                 float newVoltage = motor.getVoltage() - motor.getVoltageStep();
                 // ensure motor doesn't stop when holding down button
-                motor.setVoltage(max(newVoltage, motor.getMinVoltage()));
+                bool set = motor.setVoltage(max(newVoltage, motor.getMinVoltage()));
+                if (set) {
+                    playMotorAdjustChime(speakerPtr, mapMotorVoltageToFreq(newVoltage));
+                    handleUpClick();
+                }
             }
             break;
 
@@ -337,6 +356,14 @@ void Board::handleButtonAction() {
             // No action needed
             break;
     }
+}
+
+int Board::mapMotorVoltageToFreq(float volatge) {
+    float minVoltage = motor.getMinVoltage();
+    float maxVoltage = motor.getMaxVoltage();
+    float ratio = (volatge - minVoltage) / (maxVoltage - minVoltage);
+    int newFreq = buzzerFreqMin + ratio * (buzzerFreqMax - buzzerFreqMin);
+    return newFreq;
 }
 
 bool Board::shouldStopMotor() {
@@ -365,7 +392,8 @@ void Board::processFeedingCycle() {
 		if(millis() - delayStartTime >= delayAfterClick) {
 			// reset to wait afte click
 			waitingAfterClick = false;
-			delayStartTime = millis();
+            playTareChime(speakerPtr);
+			// delayStartTime = millis();
 		}
 	}
 	else {
