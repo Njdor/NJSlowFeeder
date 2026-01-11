@@ -83,16 +83,16 @@ void LoadCell::update() {
 	minWeight = *minmax.first;
 	maxWeight = *minmax.second;
 
-	// for (size_t i = 0; i < weightWindow.size(); ++i) {
-	// 	Serial.print(weightWindow[i], 3); 
-	// 	if (i < weightWindow.size() - 1) Serial.print(" | ");
-	// }
-	// Serial.println();
-	// Serial.print("Weight diff: ");
-	// Serial.println(maxWeight - minWeight, 3);
-	// Serial.print("Smoothed Rate: "); 
-	// Serial.println(smoothedRate, 3); 
-	// Serial.println();
+	for (size_t i = 0; i < weightWindow.size(); ++i) {
+		Serial.print(weightWindow[i], 3); 
+		if (i < weightWindow.size() - 1) Serial.print(" | ");
+	}
+	Serial.println();
+	Serial.print("Weight diff: ");
+	Serial.println(maxWeight - minWeight, 3);
+	Serial.print("Smoothed Rate: "); 
+	Serial.println(smoothedRate, 3); 
+	Serial.println();
 
 	// previousWeight = scaleReading;
 	previousWeight = netWeight;

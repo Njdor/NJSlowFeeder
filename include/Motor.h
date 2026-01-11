@@ -27,7 +27,7 @@ private:
     int directionPin;
 
 	unsigned long minMotorRunTime = 3000; 
-	const unsigned long maxMotorRunTime = 60000;
+	const unsigned long maxMotorRunTime = 180000;
 	unsigned long motorStartTime = 0;
 
 	unsigned long lastMotorUpdate = 0;

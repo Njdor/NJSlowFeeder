@@ -31,7 +31,7 @@ bool Motor::shouldStop() const {
 		return false;
 	}
 	else if (elapsed > maxMotorRunTime) { 
-		// Serial.println("Motor stop: max time reached");
+		Serial.println("Motor stop: max time reached");
 		return true; 
 	}
 	return false;
