@@ -9,7 +9,7 @@
 #include "Battery.h"
 #include "driver/rtc_io.h"
 
-#define HAS_LOADCELL       true
+#define HAS_LOADCELL       false
 #define HAS_BATTERYMONITOR false
 #define HAS_BUZZER         false
 #define CALIBRATION_FACTOR -2520.0f

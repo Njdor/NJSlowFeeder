@@ -13,8 +13,13 @@ void Board::setup() {
     
     Serial.begin(115200);
     motor.setup();
-    
-    delay(1500);
+    if(HAS_LOADCELL){
+        delay(1500);
+    }
+    else{
+        delay(100);
+    }
+
     Serial.println("Starting up...");
     printWakeupReason();
 
