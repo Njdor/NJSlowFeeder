@@ -57,7 +57,7 @@ BOM at [this link](https://docs.google.com/spreadsheets/d/11zUR7dkBkgdKcGbynbE2z
 3. Open the NJSlowfeeder.code-workspace file
    - This should install all required dependencies
 4. Open folder in Platformio extension (if not already selected)
-5. Set build flags in include/Board.h depending on what optional features you've added.
+5. Set build flags in platformio.ini (if your configuration is not already included (depends on what extra features you've added.
    - Valid flags:
       - CALIBRATION_FACTOR
       - HAS_LOADCELL

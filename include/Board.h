@@ -9,10 +9,45 @@
 #include "Battery.h"
 #include "driver/rtc_io.h"
 
-#define HAS_LOADCELL       false
-#define HAS_BATTERYMONITOR false
-#define HAS_BUZZER         false
-#define CALIBRATION_FACTOR -2520.0f
+
+#ifndef HAS_LOADCELL
+    #define HAS_LOADCELL false
+#endif
+
+#ifndef HAS_BATTERYMONITOR
+    #define HAS_BATTERYMONITOR false
+#endif
+
+#ifndef HAS_BUZZER
+    #define HAS_BUZZER false
+#endif
+
+#ifndef CALIBRATION_FACTOR
+    #define CALIBRATION_FACTOR -2520.0f
+#endif
+
+// #ifdef LOADCELLFLAG
+//     #define HAS_LOADCELL true
+// #else
+//     #define HAS_LOADCELL false
+// #endif
+
+// #ifdef BATTERYMONITORFLAG
+//     #define HAS_BATTERYMONITOR true
+// #else
+//     #define HAS_BATTERYMONITOR false
+// #endif
+
+// #ifdef BUZZERFLAG
+//     #define HAS_BUZZER true
+// #else
+//     #define HAS_BUZZER false
+// #endif
+
+// #define HAS_LOADCELL       false
+// #define HAS_BATTERYMONITOR false
+// #define HAS_BUZZER         false
+
 
 enum ButtonStatus {
     BUTTON_IDLE         = 0,
